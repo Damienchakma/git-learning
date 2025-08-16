@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Simple Static Blog</title>
+  <meta name="description" content="A simple, static blog built with plain HTML, CSS, and JS.">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #1f2937;
+      --muted-text: #6b7280;
+      --card: #f8fafc;
+      --border: #e5e7eb;
+      --accent: #2563eb;
+      --accent-contrast: #ffffff;
+      --shadow: 0 1px 2px rgba(0,0,0,.06), 0 1px 3px rgba(0,0,0,.1);
+    }
+    [data-theme="dark"] {
+      --bg: #0b0f14;
+      --text: #e5e7eb;
+      --muted-text: #9ca3af;
+      --card: #0f1720;
+      --border: #1f2937;
+      --accent: #60a5fa;
+      --accent-contrast: #0b0f14;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 1px 3px rgba(0,0,0,.3);
+    }
+
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height: 1.6;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+
+    header {
+      position: sticky; top: 0; z-index: 10;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: saturate(160%) blur(6px);
+    }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+    .brand-logo { width: 28px; height: 28px; border-radius: 6px; background: linear-gradient(135deg, var(--accent), #34d399); box-shadow: var(--shadow); }
+    .brand-name { font-weight: 700; letter-spacing: .2px; }
+
+    .nav { display: flex; gap: 12px; align-items: center; }
+    .nav a { color: var(--text); text-decoration: none; padding: 8px 10px; border-radius: 8px; }
+    .nav a:hover { background: var(--card); }
+
+    .toggle {
+      border: 1px solid var(--border); background: var(--card); color: var(--text);
+      padding: 8px 10px; border-radius: 10px; cursor: pointer; box-shadow: var(--shadow);
+    }
+
+    .hero { padding: 36px 0 12px; }
+    .hero h1 { margin: 0 0 8px; font-size: 34px; line-height: 1.2; }
+    .hero p { margin: 0; color: var(--muted-text); }
+
+    .controls { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 20px 0; }
+    .search { display: flex; gap: 8px; }
+    .search input {
+      flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text);
+    }
+    .search button { padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); cursor: pointer; }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tag {
+      border: 1px solid var(--border); background: var(--card); color: var(--text);
+      padding: 6px 10px; border-radius: 999px; cursor: pointer; font-size: 14px;
+    }
+    .tag.active { background: var(--accent); border-color: var(--accent); color: var(--accent-contrast); }
+
+    .posts { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 6px 0 40px; }
+    article.post {
+      border: 1px solid var(--border); background: var(--card); border-radius: 16px; padding: 18px; box-shadow: var(--shadow);
+    }
+    .post h2 { margin: 0 0 6px; font-size: 22px; }
+    .meta { color: var(--muted-text); font-size: 14px; margin-bottom: 10px; }
+    .excerpt { margin: 0 0 12px; color: var(--text); }
+    .post .post-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .post .post-tag { font-size: 12px; padding: 4px 8px; border-radius: 999px; background: transparent; border: 1px dashed var(--border); color: var(--muted-text); }
+    .read-more { text-decoration: none; color: var(--accent); font-weight: 600; }
+
+    footer { border-top: 1px solid var(--border); color: var(--muted-text); padding: 24px 0; }
+
+    @media (min-width: 720px) {
+      .controls { grid-template-columns: 2fr 1fr; align-items: center; }
+      .posts { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a class="brand" href="#" aria-label="Homepage">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-name">My Simple Blog</div>
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#posts">Posts</a>
+        <a href="#about">About</a>
+        <button class="toggle" id="themeToggle" aria-pressed="false" aria-label="Toggle dark mode">Toggle Theme</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero" id="about">
+      <h1>Thoughts, tutorials, and notes</h1>
+      <p>Plain HTML, CSS, and JS. No frameworks, no build step.</p>
+    </section>
+
+    <section class="controls" aria-label="Filters">
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="Search posts..." aria-label="Search posts">
+        <button id="clearSearch" title="Clear search">Clear</button>
+      </div>
+      <div class="tags" role="listbox" aria-label="Filter by tag">
+        <button class="tag active" data-tag="all" aria-pressed="true">All</button>
+        <button class="tag" data-tag="tech" aria-pressed="false">Tech</button>
+        <button class="tag" data-tag="life" aria-pressed="false">Life</button>
+        <button class="tag" data-tag="tutorial" aria-pressed="false">Tutorial</button>
+        <button class="tag" data-tag="news" aria-pressed="false">News</button>
+      </div>
+    </section>
+
+    <section id="posts" class="posts" aria-live="polite">
+      <article class="post" data-tags="tech,javascript">
+        <h2><a class="read-more" href="#">Modern JavaScript Essentials</a></h2>
+        <div class="meta"><time datetime="2025-01-15">Jan 15, 2025</time> · 6 min read</div>
+        <div class="post-tags">
+          <span class="post-tag">tech</span>
+          <span class="post-tag">javascript</span>
+        </div>
+        <p class="excerpt">A quick tour through language features that help you write clearer, safer, and more concise JS today.</p>
+        <a class="read-more" href="#">Read more →</a>
+      </article>
+
+      <article class="post" data-tags="life,notes">
+        <h2><a class="read-more" href="#">Notes on Focus and Deep Work</a></h2>
+        <div class="meta"><time datetime="2024-12-05">Dec 5, 2024</time> · 4 min read</div>
+        <div class="post-tags">
+          <span class="post-tag">life</span>
+          <span class="post-tag">notes</span>
+        </div>
+        <p class="excerpt">Small habits that compound into big creative outputs. What worked for me and what did not.</p>
+        <a class="read-more" href="#">Read more →</a>
+      </article>
+
+      <article class="post" data-tags="tutorial,css">
+        <h2><a class="read-more" href="#">CSS Layouts: From Flex to Grid</a></h2>
+        <div class="meta"><time datetime="2024-10-21">Oct 21, 2024</time> · 8 min read</div>
+        <div class="post-tags">
+          <span class="post-tag">tutorial</span>
+          <span class="post-tag">css</span>
+        </div>
+        <p class="excerpt">A practical path to responsive UIs using modern layout primitives with minimal code.</p>
+        <a class="read-more" href="#">Read more →</a>
+      </article>
+
+      <article class="post" data-tags="news,tech">
+        <h2><a class="read-more" href="#">Web Platform Updates</a></h2>
+        <div class="meta"><time datetime="2024-09-02">Sep 2, 2024</time> · 3 min read</div>
+        <div class="post-tags">
+          <span class="post-tag">news</span>
+          <span class="post-tag">tech</span>
+        </div>
+        <p class="excerpt">A roundup of the latest improvements landing in browsers and how to start using them.</p>
+        <a class="read-more" href="#">Read more →</a>
+      </article>
+
+      <article class="post" data-tags="tutorial,productivity">
+        <h2><a class="read-more" href="#">A Minimal Blog in an Afternoon</a></h2>
+        <div class="meta"><time datetime="2024-06-18">Jun 18, 2024</time> · 5 min read</div>
+        <div class="post-tags">
+          <span class="post-tag">tutorial</span>
+          <span class="post-tag">productivity</span>
+        </div>
+        <p class="excerpt">Ship small, ship fast. A checklist to get a clean site live without overengineering.</p>
+        <a class="read-more" href="#">Read more →</a>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      © <span id="year"></span> My Simple Blog · <a class="read-more" href="#about">About</a> · <a class="read-more" href="#">RSS</a>
+    </div>
+  </footer>
+
+  <script>
+    (function() {
+      var storedTheme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var initial = storedTheme || (prefersDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', initial);
+      var toggle = document.getElementById('themeToggle');
+      if (toggle) {
+        toggle.setAttribute('aria-pressed', String(initial === 'dark'));
+        toggle.addEventListener('click', function() {
+          var current = document.documentElement.getAttribute('data-theme');
+          var next = current === 'dark' ? 'light' : 'dark';
+          document.documentElement.setAttribute('data-theme', next);
+          localStorage.setItem('theme', next);
+          toggle.setAttribute('aria-pressed', String(next === 'dark'));
+        });
+      }
+    })();
+
+    (function() {
+      var searchInput = document.getElementById('searchInput');
+      var clearSearch = document.getElementById('clearSearch');
+      var tagButtons = Array.prototype.slice.call(document.querySelectorAll('.tag'));
+      var posts = Array.prototype.slice.call(document.querySelectorAll('article.post'));
+
+      function normalize(text) { return text.toLowerCase(); }
+
+      function getActiveTag() {
+        var active = tagButtons.find(function(btn) { return btn.classList.contains('active'); });
+        return active ? active.getAttribute('data-tag') : 'all';
+      }
+
+      function postMatches(post, term, tag) {
+        var matchesTag = tag === 'all' ? true : (post.getAttribute('data-tags') || '').split(',').map(function(t) { return t.trim(); }).includes(tag);
+        if (!term) return matchesTag;
+        var hay = normalize(post.textContent || '');
+        var needle = normalize(term);
+        return matchesTag && hay.indexOf(needle) !== -1;
+      }
+
+      function applyFilters() {
+        var term = searchInput.value.trim();
+        var tag = getActiveTag();
+        posts.forEach(function(post) {
+          var ok = postMatches(post, term, tag);
+          post.style.display = ok ? '' : 'none';
+        });
+      }
+
+      tagButtons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          tagButtons.forEach(function(b) {
+            b.classList.toggle('active', b === btn);
+            b.setAttribute('aria-pressed', String(b === btn));
+          });
+          applyFilters();
+        });
+      });
+
+      searchInput.addEventListener('input', applyFilters);
+      clearSearch.addEventListener('click', function() {
+        searchInput.value = '';
+        applyFilters();
+        searchInput.focus();
+      });
+
+      document.getElementById('year').textContent = String(new Date().getFullYear());
+    })();
+  </script>
+</body>
+</html>
